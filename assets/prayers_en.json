@@ -1,0 +1,67 @@
+{
+  "prayers": [
+    {
+      "hour": "First Hour",
+      "content": [
+        "Prayer Hour Name: First Hour",
+        "Psalm 1: Blessed is the man...",
+        "Psalm 2: Why do the nations rage...",
+        "Gospel: Gospel of the First Hour..."
+      ]
+    },
+    {
+      "hour": "Third Hour",
+      "content": [
+        "Prayer Hour Name: Third Hour",
+        "Psalm 22: The Lord is my shepherd...",
+        "Psalm 23: The earth is the Lord's...",
+        "Gospel: Gospel of the Third Hour..."
+      ]
+    },
+    {
+      "hour": "Sixth Hour",
+      "content": [
+        "Prayer Hour Name: Sixth Hour",
+        "Psalm 54: Save me, O God, by Your name...",
+        "Psalm 55: Give ear to my prayer, O God...",
+        "Gospel: Gospel of the Sixth Hour..."
+      ]
+    },
+    {
+      "hour": "Ninth Hour",
+      "content": [
+        "Prayer Hour Name: Ninth Hour",
+        "Psalm 69: Save me, O God...",
+        "Psalm 70: Make haste, O God, to deliver me...",
+        "Gospel: Gospel of the Ninth Hour..."
+      ]
+    },
+    {
+      "hour": "Eleventh Hour",
+      "content": [
+        "Prayer Hour Name: Eleventh Hour",
+        "Psalm 91: He who dwells in the secret place...",
+        "Psalm 92: It is good to give thanks to the Lord...",
+        "Gospel: Gospel of the Eleventh Hour..."
+      ]
+    },
+    {
+      "hour": "Twelfth Hour",
+      "content": [
+        "Prayer Hour Name: Twelfth Hour",
+        "Psalm 119: Blessed are the undefiled in the way...",
+        "Psalm 120: In my distress, I cried to the Lord...",
+        "Gospel: Gospel of the Twelfth Hour..."
+      ]
+    },
+    {
+      "hour": "Midnight Hour",
+      "content": [
+        "Prayer Hour Name: Midnight Hour",
+        "Psalm 134: Behold, bless the Lord...",
+        "Psalm 135: Praise the name of the Lord...",
+        "Gospel: Gospel of the Midnight Hour..."
+      ]
+    }
+  ]
+}

@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
               ),
             ),
             home: SplashScreen(), // Assuming SplashScreen is a valid widget
+            debugShowCheckedModeBanner: false,
           );
         },
       ),

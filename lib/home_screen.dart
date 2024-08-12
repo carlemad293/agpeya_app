@@ -1,34 +1,149 @@
-import 'dart:async'; // Import for Timer
-import 'package:intl/intl.dart'; // Import for DateFormat
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'app_settings.dart';
 import 'settings_drawer.dart';
+import 'prayer_detail_screen.dart'; // Import the PrayerDetailScreen
+import 'package:intl/intl.dart';
 
-class HomeScreen extends StatelessWidget {
+// Other parts of your HomeScreen code...
+
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+  String _copticDate = '';
+  String _gregorianDate = '';
+  bool _isDateVisible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      _updateDates();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateDates();
+  }
+
+  void _updateDates() {
+    final now = DateTime.now();
+    final locale = Localizations.localeOf(context).toString();
+
+    final gregorianDate = locale.startsWith('ar')
+        ? DateFormat('EEEE dd MMMM, yyyy', locale).format(now)
+        : DateFormat('EEEE d MMMM, yyyy', locale).format(now);
+
+    final copticDate = _convertToCopticDate(now, locale);
+
+    setState(() {
+      _copticDate = copticDate;
+      _gregorianDate = gregorianDate;
+    });
+  }
+
+  String _convertToCopticDate(DateTime date, String locale) {
+    final a = ((14 - date.month) / 12).floor();
+    final m = date.month + 12 * a - 3;
+    final y = date.year + (4800 - a) - 1;
+    final jdn = date.day + ((153 * m + 2) / 5).floor() + 365 * y + (y / 4).floor() - (y / 100).floor() + (y / 400).floor() - 32045;
+    final copticEpoch = 1824665;
+    final copticJdn = jdn - copticEpoch;
+    final copticYear = (copticJdn / 365.25).floor();
+    final copticDayOfYear = copticJdn - (copticYear * 365.25).floor();
+    final copticMonth = (copticDayOfYear / 30).floor() + 1;
+    final copticDay = copticDayOfYear - (copticMonth - 1) * 30;
+
+    final copticMonthNames = {
+      'en': ['Toot', 'Baba', 'Hatoor', 'Kiahk', 'Tooba', 'Amshir', 'Baramhat', 'Baramouda', 'Bashans', 'Baouna', 'Abeeb', 'Mesra', 'Nasie'],
+      'ar': ['توت', 'بابه', 'هاتور', 'كيهك', 'طوبة', 'أمشير', 'برمهات', 'برمودة', 'بشنس', 'بؤونة', 'أبيب', 'مسرى', 'نسيئ']
+    };
+
+    final copticMonthName = copticMonthNames[locale.startsWith('ar') ? 'ar' : 'en']![copticMonth - 1];
+
+    return '${copticDay + 1} $copticMonthName ${copticYear + 1}';
+  }
+
   @override
   Widget build(BuildContext context) {
     final appSettings = Provider.of<AppSettings>(context);
+    final locale = Localizations.localeOf(context).toString();
 
-    final prayers = [
+    final localizedTitle = locale.startsWith('ar') ? 'أجبية' : 'Agpeya';
+
+    final prayers = locale.startsWith('ar')
+        ? [
       {'name': 'صلاة باكر', 'image': 'assets/morning.png'},
       {'name': 'صلاة الساعة الثالثة', 'image': 'assets/third_hour.png'},
       {'name': 'صلاة الساعة السادسة', 'image': 'assets/sixth_hour.png'},
       {'name': 'صلاة الساعة التاسعة', 'image': 'assets/ninth_hour.png'},
       {'name': 'صلاة الساعة الحادية عشر (الغروب)', 'image': 'assets/eleventh_hour.png'},
       {'name': 'صلاة الساعة الثانية عشر (النوم)', 'image': 'assets/twelfth_hour.png'},
-      {'name': 'صلاة نصف الليل ', 'image': 'assets/midnight_first_service.png'},
+      {'name': 'صلاة نصف الليل', 'image': 'assets/midnight_first_service.png'},
+    ]
+        : [
+      {'name': 'Morning Prayer', 'image': 'assets/morning.png'},
+      {'name': 'Third Hour Prayer', 'image': 'assets/third_hour.png'},
+      {'name': 'Sixth Hour Prayer', 'image': 'assets/sixth_hour.png'},
+      {'name': 'Ninth Hour Prayer', 'image': 'assets/ninth_hour.png'},
+      {'name': 'Eleventh Hour (Vespers)', 'image': 'assets/eleventh_hour.png'},
+      {'name': 'Twelfth Hour (Compline)', 'image': 'assets/twelfth_hour.png'},
+      {'name': 'Midnight Prayer', 'image': 'assets/midnight_first_service.png'},
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Agpeya'),
+        title: Text(localizedTitle),
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: CopticDateWidget(), // Add the CopticDateWidget here
+          AnimatedSize(
+            duration: Duration(milliseconds: 300),
+            child: Column(
+              children: [
+                Visibility(
+                  visible: _isDateVisible,
+                  child: Column(
+                    children: [
+                      Text(
+                        _gregorianDate,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        _copticDate,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _isDateVisible = !_isDateVisible;
+                    });
+                  },
+                  child: Icon(
+                    _isDateVisible ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                    size: 40,
+                  ),
+                ),
+              ],
+            ),
           ),
           Expanded(
             child: GridView.builder(
@@ -42,8 +157,14 @@ class HomeScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
+                    final prayerName = prayers[index]['name']!;
+                    final prayerImage = prayers[index]['image']!;
+
                     Navigator.of(context).push(
-                        _createRoute(prayers[index]['name']!, prayers[index]['image']!)
+                      _createRoute(PrayerDetailScreen(
+                        name: prayerName,
+                        image: prayerImage,
+                      )),
                     );
                   },
                   child: Card(
@@ -81,7 +202,7 @@ class HomeScreen extends StatelessWidget {
                                 Shadow(
                                   offset: Offset(2.0, 2.0),
                                   blurRadius: 3.0,
-                                  color: Colors.black.withOpacity(0.5),
+                                  color: Colors.black,
                                 ),
                               ],
                             ),
@@ -101,132 +222,30 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Route _createRoute(String prayerName, String prayerImage) {
+  Route _createRoute(Widget page) {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => PrayerDetailScreen(
-        name: prayerName,
-        image: prayerImage,
-      ),
+      pageBuilder: (context, animation, secondaryAnimation) => page,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        var begin = Offset(0.0, 1.0);
-        var end = Offset.zero;
-        var curve = Curves.easeInOut;
+        const slideBegin = Offset(0.0, 1.0); // Slide from the bottom
+        const slideEnd = Offset.zero; // Final position
+        const slideCurve = Curves.easeInOut;
+        final slideTween = Tween(begin: slideBegin, end: slideEnd).chain(CurveTween(curve: slideCurve));
+        final slideAnimation = animation.drive(slideTween);
 
-        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        const fadeBegin = 0.0; // Start completely transparent
+        const fadeEnd = 1.0; // End completely opaque
+        const fadeCurve = Curves.easeInOut;
+        final fadeTween = Tween(begin: fadeBegin, end: fadeEnd).chain(CurveTween(curve: fadeCurve));
+        final fadeAnimation = animation.drive(fadeTween);
 
         return SlideTransition(
-          position: animation.drive(tween),
+          position: slideAnimation,
           child: FadeTransition(
-            opacity: animation,
+            opacity: fadeAnimation,
             child: child,
           ),
         );
       },
-    );
-  }
-}
-
-class CopticDateWidget extends StatefulWidget {
-  @override
-  _CopticDateWidgetState createState() => _CopticDateWidgetState();
-}
-
-class _CopticDateWidgetState extends State<CopticDateWidget> {
-  String _copticDate = '';
-  String _gregorianDate = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _updateDates();
-    Timer.periodic(Duration(seconds: 1), (timer) {
-      _updateDates();
-    });
-  }
-
-  void _updateDates() {
-    final now = DateTime.now();
-    final copticDate = _convertToCopticDate(now);
-    // Specify the locale to prevent changes when the app's language changes
-    final gregorianDate = DateFormat('EEEE, MMMM d, yyyy', 'en_US').format(now);
-    setState(() {
-      _copticDate = copticDate;
-      _gregorianDate = gregorianDate;
-    });
-  }
-
-  String _convertToCopticDate(DateTime date) {
-    final a = ((14 - date.month) / 12).floor();
-    final m = date.month + 12 * a - 3;
-    final y = date.year + (4800 - a) - 1;
-    final jdn = date.day + ((153 * m + 2) / 5).floor() + 365 * y + (y / 4).floor() - (y / 100).floor() + (y / 400).floor() - 32045;
-    final copticEpoch = 1824665;
-    final copticJdn = jdn - copticEpoch;
-    final copticYear = (copticJdn / 365.25).floor();
-    final copticDayOfYear = copticJdn - (copticYear * 365.25).floor();
-    final copticMonth = (copticDayOfYear / 30).floor() + 1;
-    final copticDay = copticDayOfYear - (copticMonth - 1) * 30;
-
-    final copticMonthNames = [
-      'Toot', 'Baba', 'Hatoor', 'Kiahk', 'Tooba', 'Amshir', 'Baramhat', 'Baramouda', 'Bashans', 'Baouna', 'Abeeb', 'Mesra', 'Nasie'
-    ];
-    final copticMonthName = copticMonthNames[copticMonth - 1];
-
-    return '${copticDay + 1} $copticMonthName ${copticYear + 1}';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center, // Center aligns the text
-      children: [
-        Text(
-          _gregorianDate,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold, // Makes the text bold
-          ),
-          textAlign: TextAlign.center, // Centers the text horizontally
-        ),
-        SizedBox(height: 4),
-        Text(
-          _copticDate,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold, // Makes the text bold
-          ),
-          textAlign: TextAlign.center, // Centers the text horizontally
-        ),
-      ],
-    );
-  }
-}
-
-class PrayerDetailScreen extends StatelessWidget {
-  final String name;
-  final String image;
-
-  PrayerDetailScreen({required this.name, required this.image});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(name),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(image),
-            SizedBox(height: 20),
-            Text(
-              name,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
