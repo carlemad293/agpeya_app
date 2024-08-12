@@ -7,55 +7,85 @@ class AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final appSettings = Provider.of<AppSettings>(context);
 
+    // Determine the text based on the selected language
+    final String drawerTitle = appSettings.locale.languageCode == 'ar' ? 'الأجبية' : 'Agpeya';
+    final String settingsTitle = appSettings.locale.languageCode == 'ar' ? 'إعدادات' : 'Settings';
+
     return Drawer(
       child: ListView(
         children: <Widget>[
           DrawerHeader(
-            decoration: const BoxDecoration(
-              color: Colors.blue,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/drawer_image.png'),
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Colors.black.withOpacity(0.5), // Dim the image
+                  BlendMode.darken,
+                ),
+              ),
             ),
-            child: Text(
-              'Settings',
-              style: TextStyle(fontSize: appSettings.fontSize, color: Colors.white),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.brightness_6),
-            title: Text('Dark Theme', style: TextStyle(fontSize: appSettings.fontSize)),
-            trailing: Switch(
-              value: appSettings.isDarkTheme,
-              activeColor: Colors.blue,  // Set the active color to blue
-              onChanged: (value) {
-                appSettings.toggleTheme();
-              },
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.text_fields),
-            title: Text('Font Size', style: TextStyle(fontSize: appSettings.fontSize)),
-            subtitle: Slider(
-              value: appSettings.fontSize,
-              min: 12.0,
-              max: 30.0,
-              activeColor: Colors.blue,  // Set the active color to blue
-              onChanged: (newSize) {
-                appSettings.updateFontSize(newSize);
-              },
+            child: Center( // Center the text within the DrawerHeader
+              child: Text(
+                drawerTitle,
+                style: TextStyle(
+                  fontSize: 30.0, // Set a bigger and constant font size
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      offset: Offset(5.0, 5.0),
+                      blurRadius: 20.0,
+                      color: Colors.black.withOpacity(1),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.language),
-            title: Text('Change Language', style: TextStyle(fontSize: appSettings.fontSize)),
-            trailing: DropdownButton<String>(
-              value: appSettings.locale.languageCode,
-              items: const [
-                DropdownMenuItem(value: 'ar', child: Text('Arabic')),
-                DropdownMenuItem(value: 'en', child: Text('English')),
-              ],
-              onChanged: (newLang) {
-                appSettings.changeLocale(newLang!);
-              },
-            ),
+          ExpansionTile(
+            leading: const Icon(Icons.settings),
+            title: Text(settingsTitle, style: TextStyle(fontSize: appSettings.fontSize)),
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.brightness_6),
+                title: Text('Dark Mode', style: TextStyle(fontSize: appSettings.fontSize)),
+                trailing: Switch(
+                  value: appSettings.isDarkTheme,
+                  activeColor: Colors.blue,
+                  onChanged: (value) {
+                    appSettings.toggleTheme();
+                  },
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.text_fields),
+                title: Text('Font Size', style: TextStyle(fontSize: appSettings.fontSize)),
+                subtitle: Slider(
+                  value: appSettings.fontSize,
+                  min: 12.0,
+                  max: 30.0,
+                  activeColor: Colors.blue,
+                  onChanged: (newSize) {
+                    appSettings.updateFontSize(newSize);
+                  },
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.language),
+                title: Text('Change Language', style: TextStyle(fontSize: appSettings.fontSize)),
+                trailing: DropdownButton<String>(
+                  value: appSettings.locale.languageCode,
+                  items: const [
+                    DropdownMenuItem(value: 'ar', child: Text('Arabic')),
+                    DropdownMenuItem(value: 'en', child: Text('English')),
+                  ],
+                  onChanged: (newLang) {
+                    appSettings.changeLocale(newLang!);
+                  },
+                ),
+              ),
+            ],
           ),
         ],
       ),
