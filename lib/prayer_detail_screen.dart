@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart'; // Import Clipboard
 import 'package:vibration/vibration.dart'; // Import Vibration
+import 'package:fluttertoast/fluttertoast.dart'; // Import Fluttertoast
 
 import 'app_settings.dart';
 import 'settings_drawer.dart';
@@ -246,7 +247,7 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
         {'title': 'Gospel', 'text': 'إنجيل صلاة نصف الليل...'}
       ],
       'Morning Prayer': [
-        {'title': 'Psalm 1', 'text': 'Blessed is the man...'},
+        {'title': 'Psalm 1', 'text': 'Give ear, O Lord, to my words, and hear my cry. Attend to the voice of my supplication, O my King and my God, for to you I will pray. In the morning, O Lord, you will hear my voice; in the morning I will stand before you, and you will see me.For you are a God who does not desire iniquity, and no one who does evil shall dwell with you, nor shall transgressors abide before your eyes. O LORD, you hate all workers of iniquity; you will destroy all who speak lies. The bloody and deceitful man the LORD abhors. But as for me, in the multitude of your mercy I will enter your house; I will worship before your holy temple in your fear.Lead me, O LORD, in your righteousness. Because of my enemies, make your way straight before me. For there is no truth in their mouth; their heart is vain; their throat is an open grave; and with their tongue they have dealt deceitfully. Judge them, O God, and let them fall because of all their schemes; according to the multitude of their wickedness cut them off. For they have provoked you, O LORD.And let all who trust in you be glad; they shall rejoice forever, and you shall dwell in them. And all who love your name shall glory in you. For you, O Lord, have blessed the righteous; you have crowned us as a shield of favor. Alleluia.'},
         {'title': 'Psalm 2', 'text': 'Why do the nations rage...'},
         {'title': 'Gospel', 'text': 'Gospel of the Morning Prayer...'}
       ],
@@ -297,16 +298,18 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
                   fontSize: 20,
                 ),
               ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    text,
-                    style: TextStyle(fontSize: dialogFontSize),
-                  ),
-                  SizedBox(height: 20),
-                ],
+              content: SingleChildScrollView( // Make content scrollable
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      text,
+                      style: TextStyle(fontSize: dialogFontSize),
+                    ),
+                    SizedBox(height: 20),
+                  ],
+                ),
               ),
               actions: <Widget>[
                 Row(
@@ -332,15 +335,20 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
                       icon: Icon(Icons.copy),
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: text)).then((_) {
-                          // Show SnackBar to notify the user that the content is copied
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Content copied to clipboard ✅'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
+                          // Delay showing the toast to ensure it appears
+                          Future.delayed(Duration(milliseconds: 100), () {
+                            Fluttertoast.showToast(
+                              msg: 'Content copied to clipboard ✅',
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.black54,
+                              textColor: Colors.white,
+                              fontSize: 16.0,
+                            );
 
-                          Vibration.vibrate(); // Optional: Trigger vibration on copy
+                            Vibration.vibrate(); // Optional: Trigger vibration on copy
+                          });
                         });
                       },
                     ),
