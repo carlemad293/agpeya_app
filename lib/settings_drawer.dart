@@ -10,6 +10,7 @@ class AppDrawer extends StatelessWidget {
     // Determine the text based on the selected language
     final String drawerTitle = appSettings.locale.languageCode == 'ar' ? 'الأجبية' : 'Agpeya';
     final String settingsTitle = appSettings.locale.languageCode == 'ar' ? 'إعدادات' : 'Settings';
+    final String aboutTitle = appSettings.locale.languageCode == 'ar' ? 'حول التطبيق' : 'About';
 
     return Drawer(
       child: ListView(
@@ -86,6 +87,45 @@ class AppDrawer extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: Text(aboutTitle, style: TextStyle(fontSize: appSettings.fontSize)),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text(aboutTitle),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Image.asset('assets/developer_logo.png', height: 100), // Developer's logo
+                        SizedBox(height: 20),
+                        Text(
+                          appSettings.locale.languageCode == 'ar'
+                              ? 'تم تطوير التطبيق بواسطة:\nكارل عماد و مارتن ماجد'
+                              : 'Developed by:\nCarl Emad & Martin Maged',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: appSettings.fontSize),
+                        ),
+                      ],
+                    ),
+                    actions: <Widget>[
+                      TextButton(
+                        child: Text(
+                          appSettings.locale.languageCode == 'ar' ? 'إغلاق' : 'Close',
+                          style: TextStyle(fontSize: appSettings.fontSize),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
           ),
         ],
       ),

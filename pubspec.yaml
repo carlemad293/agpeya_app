@@ -79,6 +79,7 @@ flutter:
     - assets/midnight_first_service.png
     - assets/splash_image.png
     - assets/drawer_image.png
+    - assets/developer_logo.png
     - assets/prayers_ar.json
     - assets/prayers_en.json
 
